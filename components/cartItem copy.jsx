@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Minus, Plus, Trash2, Check, Edit3, Loader2 } from "lucide-react";
+import { Minus, Plus, Trash2, Check, Edit3 } from "lucide-react";
 import Image from "next/image";
 
 export default function CartItem({
@@ -23,6 +23,7 @@ export default function CartItem({
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSave = async () => {
+    // hanya update kalau ada perubahan
     if (tempQuantity !== item.quantity) {
       setIsSaving(true);
       await onUpdateQuantity(
@@ -30,6 +31,7 @@ export default function CartItem({
         tempQuantity - item.quantity,
         true
       );
+      // true di argumen terakhir bisa dipakai opsional untuk bedakan commit
       setIsSaving(false);
     }
     setIsEditing(false);
@@ -38,25 +40,16 @@ export default function CartItem({
   return (
     <Card
       key={item.cartItemId}
-      className={`relative rounded-lg shadow-sm overflow-hidden transition-all duration-300 ${
+      className={`rounded-lg shadow-sm ${
         idx === arr?.length - 1 ? "mb-60 md:mb-0" : ""
       }`}
     >
-      {isSaving && (
-        <div className="absolute inset-0 z-10 backdrop-blur-[2px] bg-white/30 flex items-center justify-center pointer-events-none">
-          <div className="flex items-center gap-2 text-gray-700 text-sm font-medium">
-            <Loader2 className="w-4 h-4 animate-spin" />
-            Menyimpan perubahan...
-          </div>
-        </div>
-      )}
       <CardContent className="flex items-center gap-3 p-4">
         {/* Checkbox */}
         <Checkbox
           checked={isSelected}
           onCheckedChange={(checked) => onToggle(item, checked)}
           className="w-5 h-5 md:w-6 md:h-6"
-          disabled={isEditing || isSaving}
         />
 
         {/* Gambar produk */}
