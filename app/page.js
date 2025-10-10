@@ -19,6 +19,7 @@ export default async function Home(props) {
 
   // Data yang akan di-use() di komponen
   let productsPromise;
+  let banners;
   let featuredPromise;
   let searchProductsPromise;
 
@@ -26,12 +27,11 @@ export default async function Home(props) {
     const where = { name: { contains: keyword, mode: "insensitive" } };
     searchProductsPromise = getProducstWithCondition(where);
   } else {
+    banners = getBanners();
     productsPromise = getActiveProducts();
     featuredPromise = getFeaturedProducts();
   }
 
-  // Data yang ingin langsung di-await
-  const banners = getBanners();
   const session = await getSession();
   const cartData = session?.userId ? await getCartByUser(session.userId) : [];
 
