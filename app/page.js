@@ -47,7 +47,7 @@ export default async function Home(props) {
             <h2 className="font-semibold text-lg sm:text-xl text-primary">
               Produk Unggulan
             </h2>
-            <Suspense>
+            <Suspense fallback={<ProductsSkeleton />}>
               <Products data={featuredPromise} />
             </Suspense>
           </div>
