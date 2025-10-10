@@ -2,7 +2,7 @@ import Banner from "@/components/banner";
 import EmptyPage from "@/components/EmptyPage";
 import Navigation from "@/components/navigation";
 import Products from "@/components/products";
-import { ProductsSkeleton } from "@/components/productsSkeleton";
+import { ProductsSkeleton } from "@/components/skeleton/productsSkeleton";
 import { getBanners } from "@/lib/data-access/banner";
 import { getCartByUser } from "@/lib/data-access/cart";
 import {

@@ -1,14 +1,14 @@
 import { getProduct } from "@/lib/data-access/product";
-import ProductDetailContent from "./productDetailContent";
 import { getSession } from "@/lib/session";
+import { Suspense } from "react";
+import ProductDetail from "./productDetailContent";
+import { ProductDetailSkeleton } from "@/components/skeleton/productDetailSkeleton";
 
 export default async function DetailProductPage({ params }) {
   const { slug } = await params;
 
-  const [product, session] = await Promise.all([
-    getProduct(slug),
-    getSession(),
-  ]);
+  const session = await getSession();
+  const product = getProduct(slug);
 
   if (!product) {
     return <div>Produk Tidak Ditemukan</div>;
@@ -16,7 +16,9 @@ export default async function DetailProductPage({ params }) {
 
   return (
     <>
-      <ProductDetailContent product={product} session={session} />
+      <Suspense fallback={<ProductDetailSkeleton />}>
+        <ProductDetail product={product} session={session} />
+      </Suspense>
     </>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { use, useState, useTransition } from "react";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import {
@@ -20,11 +20,12 @@ import { toast } from "sonner";
 import { addToCart } from "@/action/cart";
 import Spinner from "@/components/spinner";
 
-export default function ProductDetailContent({ product, session }) {
+export default function ProductDetail({ product, session }) {
+  const productData = use(product);
   const [quantity, setQuantity] = useState(1);
   const [isPending, startTransition] = useTransition();
 
-  const subtotal = product.price * quantity;
+  const subtotal = productData?.price * quantity;
 
   // Hitung estimasi pengiriman berikutnya
   const today = new Date();
@@ -39,8 +40,8 @@ export default function ProductDetailContent({ product, session }) {
   async function handleAddToCart() {
     startTransition(async () => {
       try {
-        await addToCart(product.id, quantity);
-        toast.success(`${product.name} ditambahkan ke keranjang`);
+        await addToCart(productData?.id, quantity);
+        toast.success(`${productData?.name} ditambahkan ke keranjang`);
       } catch (err) {
         toast.error("Gagal menambahkan ke keranjang");
       }
@@ -56,17 +57,17 @@ export default function ProductDetailContent({ product, session }) {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink href={"/category/" + product?.category?.slug}>
-              {product?.category?.name}
+            <BreadcrumbLink href={"/category/" + productData?.category?.slug}>
+              {productData?.category?.name}
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink
-              href={"/product/" + product.slug}
+              href={"/product/" + productData?.slug}
               className="font-semibold text-foreground"
             >
-              {product.name}
+              {productData?.name}
             </BreadcrumbLink>
           </BreadcrumbItem>
         </BreadcrumbList>
@@ -78,8 +79,8 @@ export default function ProductDetailContent({ product, session }) {
         <div className="md:col-span-3 flex justify-center md:justify-start">
           <div className="relative w-full max-w-[240px] aspect-square rounded-lg overflow-hidden md:shadow-md">
             <Image
-              src={product.imageUrl}
-              alt={product.name}
+              src={productData?.imageUrl}
+              alt={productData?.name}
               sizes="100vh"
               fill
               priority
@@ -91,12 +92,12 @@ export default function ProductDetailContent({ product, session }) {
         {/* Middle - Product Info */}
         <div className="space-y-4 md:col-span-6">
           <div>
-            <h1 className="text-2xl font-semibold">{product.name}</h1>
+            <h1 className="text-2xl font-semibold">{productData?.name}</h1>
             <p className="text-sm text-muted-foreground">
-              Terjual {product.sold}
+              Terjual {productData?.sold}
             </p>
             <p className="text-2xl font-bold mt-2">
-              Rp {product.price.toLocaleString("id-ID")}
+              Rp {productData?.price.toLocaleString("id-ID")}
             </p>
           </div>
 
@@ -111,7 +112,7 @@ export default function ProductDetailContent({ product, session }) {
               <div className="w-full h-0.5 bg-border rounded-full"></div>
             </div>
             <div className="pt-2 text-sm text-primary">
-              {product.description}
+              {productData?.description}
             </div>
           </div>
         </div>
