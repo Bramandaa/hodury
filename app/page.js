@@ -67,7 +67,7 @@ export default async function Home(props) {
         {searchProductsPromise && (
           <div className="space-y-2">
             <h2 className="font-semibold text-lg sm:text-sm text-primary">
-              Menampilkan produk untuk "{keyword}"
+              {`Menampilkan produk untuk "${keyword}"`}
             </h2>
             <Suspense fallback={<ProductsSkeleton />}>
               <Products data={searchProductsPromise} />
