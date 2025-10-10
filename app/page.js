@@ -17,7 +17,9 @@ export default async function Home(props) {
   const searchParams = (await props.searchParams) || {};
   const keyword = searchParams.search || "";
 
-  // Data yang akan di-use() di komponen
+  const session = await getSession();
+  const cartData = session?.userId ? await getCartByUser(session.userId) : [];
+
   let productsPromise;
   let banners;
   let featuredPromise;
@@ -31,9 +33,6 @@ export default async function Home(props) {
     productsPromise = getActiveProducts();
     featuredPromise = getFeaturedProducts();
   }
-
-  const session = await getSession();
-  const cartData = session?.userId ? await getCartByUser(session.userId) : [];
 
   return (
     <>
