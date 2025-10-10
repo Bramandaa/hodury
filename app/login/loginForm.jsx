@@ -14,7 +14,7 @@ export default function LoginForm() {
     success: false,
     message: "",
   };
-  const [state, action, isPending] = useActionState(auth, undefined);
+  const [state, action, isPending] = useActionState(auth, initialState);
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = (formData) => {
