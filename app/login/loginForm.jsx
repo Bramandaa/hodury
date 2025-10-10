@@ -10,6 +10,10 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircleIcon } from "lucide-react";
 
 export default function LoginForm() {
+  const initialState = {
+    success: false,
+    message: "",
+  };
   const [state, action, isPending] = useActionState(auth, undefined);
   const [showPassword, setShowPassword] = useState(false);
 
