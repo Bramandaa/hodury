@@ -1,6 +1,12 @@
+import { getSession } from "@/lib/session";
 import LoginForm from "./loginForm";
+import { redirect } from "next/navigation";
 
-export default async function LoginPage(params) {
+export default async function LoginPage() {
+  const session = await getSession();
+  if (session) {
+    redirect("/");
+  }
   return (
     <>
       <LoginForm />
