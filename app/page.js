@@ -14,7 +14,7 @@ import { getSession } from "@/lib/session";
 import { Suspense } from "react";
 
 export default async function Home(props) {
-  const searchParams = props.searchParams || {};
+  const searchParams = (await props.searchParams) || {};
   const keyword = searchParams.search || "";
 
   // Data yang akan di-use() di komponen

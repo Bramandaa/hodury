@@ -33,7 +33,7 @@ export default function Banner({ banners }) {
           <SwiperSlide key={index}>
             <div className="w-full flex justify-center bg-transparent">
               <div className="w-full overflow-hidden relative z-0">
-                <div className="relative w-full aspect-[3/1] bg-white">
+                <div className="relative w-full aspect-[5/2] md:aspect-[3/1] bg-white">
                   <Image
                     src={item.imageUrl}
                     alt={item.name}
