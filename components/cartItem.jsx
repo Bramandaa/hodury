@@ -93,11 +93,11 @@ export default function CartItem({
           >
             {isEditing ? "Simpan" : "Ubah"}
           </Button>
-          <div className="flex items-center border rounded-lg">
+          <div className="flex items-center border rounded-lg p-1">
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8"
+              className="h-8 w-8 bg-gray-300 hover:bg-gray-200"
               disabled={!isEditing || isSaving}
               onClick={() => setTempQuantity((q) => Math.max(1, q - 1))}
             >
@@ -109,11 +109,11 @@ export default function CartItem({
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8"
+              className="h-8 w-8 bg-primary hover:bg-primary/80"
               disabled={!isEditing || isSaving}
               onClick={() => setTempQuantity((q) => q + 1)}
             >
-              <Plus size={18} />
+              <Plus className="text-white" size={18} />
             </Button>
           </div>
 
