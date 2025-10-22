@@ -6,15 +6,19 @@ import { loginSchema, registerSchema } from "@/lib/validations/authSchema";
 import { redirect } from "next/navigation";
 import { createSession, deleteSession } from "@/lib/session";
 import { UserRole } from "@prisma/client";
+import { UseActionState } from "@/types";
 
-export async function register(prevState, formData) {
+export async function register(
+  prevState: UseActionState | null,
+  formData: FormData
+): Promise<UseActionState> {
   try {
     const rawData = {
-      name: formData.get("name"),
-      email: formData.get("email"),
-      phone: formData.get("phone"),
-      password: formData.get("password"),
-      confirm_password: formData.get("confirm_password"),
+      name: formData.get("name") as string,
+      email: formData.get("email") as string,
+      phone: formData.get("phone") as string,
+      password: formData.get("password") as string,
+      confirm_password: formData.get("confirm_password") as string,
     };
 
     const validatedData = registerSchema.safeParse(rawData);
@@ -28,7 +32,6 @@ export async function register(prevState, formData) {
       };
     }
 
-    // Cek email duplikat (jika ada)
     if (rawData.email) {
       const existingUser = await prisma.user.findUnique({
         where: { email: rawData.email },
@@ -42,7 +45,6 @@ export async function register(prevState, formData) {
       }
     }
 
-    // Cek phone duplikat
     const existingPhone = await prisma.user.findUnique({
       where: { phone: rawData.phone },
     });
@@ -75,10 +77,13 @@ export async function register(prevState, formData) {
   redirect("/login?success=Akun berhasil dibuat");
 }
 
-export async function auth(prevState, formData) {
+export async function auth(
+  prevState: UseActionState | null,
+  formData: FormData
+): Promise<UseActionState> {
   const rawData = {
-    identifier: formData.get("identifier"),
-    password: formData.get("password"),
+    identifier: formData.get("identifier") as string,
+    password: formData.get("password") as string,
   };
 
   const validatedData = loginSchema.safeParse(rawData);

@@ -1,4 +1,6 @@
-export function toUserDTO(user) {
+import { User } from "@prisma/client";
+
+export function toUserDTO(user: User) {
   return {
     id: user.id,
     name: user.name,
@@ -12,11 +14,13 @@ export function toUserDTO(user) {
   };
 }
 
-export function toUsersDTOs(user) {
+export type UserDto = ReturnType<typeof toUserDTO>;
+
+export function toUsersDTOs(user: User[]) {
   return user.map(toUserDTO);
 }
 
-export function toUserAddressDTO(user) {
+export function toUserAddressDTO(user: User) {
   return {
     name: user.name,
     phone: user.phone,

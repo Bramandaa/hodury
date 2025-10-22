@@ -1,4 +1,6 @@
-export function toCategoryDTO(category) {
+import { Category } from "@prisma/client";
+
+export function toCategoryDTO(category: Category) {
   return {
     id: category.id,
     name: category.name,
@@ -6,6 +8,8 @@ export function toCategoryDTO(category) {
   };
 }
 
-export function toCategoriesDTOs(category) {
+export type CategoryDTO = ReturnType<typeof toCategoryDTO>;
+
+export function toCategoriesDTOs(category: Category[]) {
   return category.map(toCategoryDTO);
 }

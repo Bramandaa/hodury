@@ -31,8 +31,8 @@ export const getFeaturedProducts = unstable_cache(
   { tags: ["product"] }
 );
 
-export function getProductsWithCondition(where: Prisma.ProductWhereInput) {
-  return unstable_cache(
+export const getProductsWithCondition = (where: Prisma.ProductWhereInput) =>
+  unstable_cache(
     async (): Promise<ProductDTO[]> => {
       const products = await prisma.product.findMany({
         where,
@@ -46,11 +46,10 @@ export function getProductsWithCondition(where: Prisma.ProductWhereInput) {
       revalidate: 60,
       tags: ["product"],
     }
-  )();
-}
+  );
 
-export function getProduct(slugProduct: string) {
-  return unstable_cache(
+export const getProduct = (slugProduct: string) =>
+  unstable_cache(
     async (): Promise<ProductDTO | null> => {
       const product = await prisma.product.findUnique({
         where: { slug: slugProduct },
@@ -62,10 +61,9 @@ export function getProduct(slugProduct: string) {
     },
     [`product-${slugProduct}`],
     { tags: ["product"] }
-  )();
-}
+  );
 
-export function getProductsByAdminWithCondition({
+export const getProductsByAdminWithCondition = ({
   skip,
   limit,
   where,
@@ -73,8 +71,8 @@ export function getProductsByAdminWithCondition({
   skip: number;
   limit: number;
   where: Prisma.ProductWhereInput;
-}) {
-  return unstable_cache(
+}) =>
+  unstable_cache(
     async (): Promise<ProductDTO[] | null> => {
       const products = await prisma.product.findMany({
         skip,
@@ -92,5 +90,4 @@ export function getProductsByAdminWithCondition({
     },
     [`products-${skip}-${limit}-${JSON.stringify(where)}`],
     { tags: ["product"] }
-  )();
-}
+  );
