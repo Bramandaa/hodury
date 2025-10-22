@@ -31,8 +31,10 @@ export const getFeaturedProducts = unstable_cache(
   { tags: ["product"] }
 );
 
-export const getProductsWithCondition = (where: Prisma.ProductWhereInput) =>
-  unstable_cache(
+export async function getProductsWithCondition(
+  where: Prisma.ProductWhereInput
+) {
+  return unstable_cache(
     async (): Promise<ProductDTO[]> => {
       const products = await prisma.product.findMany({
         where,
@@ -46,7 +48,8 @@ export const getProductsWithCondition = (where: Prisma.ProductWhereInput) =>
       revalidate: 60,
       tags: ["product"],
     }
-  );
+  )();
+}
 
 export const getProduct = (slugProduct: string) =>
   unstable_cache(
