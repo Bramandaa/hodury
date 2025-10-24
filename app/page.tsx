@@ -2,6 +2,7 @@ import Banner from "@/components/banner";
 import Navigation from "@/components/navigation";
 import Products from "@/components/products";
 import BannerSkeleton from "@/components/skeletons/bannerSkeleton";
+import NavigationSkeletons from "@/components/skeletons/navigationSkeletons";
 import { ProductsSkeleton } from "@/components/skeletons/productsSkeleton";
 import { Separator } from "@/components/ui/separator";
 import { getBanners } from "@/lib/data-access/banner";
@@ -22,7 +23,9 @@ export default async function Home(props: {
   const keyword = (searchParams.search as string) || "";
 
   const session = await getSession();
-  const cartData = session?.userId ? await getCartByUser(session.userId) : null;
+  const cartData = session?.userId
+    ? getCartByUser(session.userId)
+    : Promise.resolve(null);
 
   let productsPromise;
   let banners;
@@ -36,14 +39,17 @@ export default async function Home(props: {
     searchProductsPromise = getProductsWithCondition(where);
   } else {
     banners = getBanners();
-    productsPromise = getActiveProducts();
     featuredPromise = getFeaturedProducts();
+    productsPromise = getActiveProducts();
   }
 
   return (
     <>
-      <Navigation session={session!} cartData={cartData!} />
-
+      <Suspense
+        fallback={<NavigationSkeletons search={keyword} session={session} />}
+      >
+        <Navigation session={session} search={keyword} cart={cartData} />
+      </Suspense>
       <section className="max-w-5xl mx-auto px-4 sm:px-6 md:px-10 py-6 space-y-12">
         {!searchProductsPromise && banners && (
           <Suspense fallback={<BannerSkeleton />}>
@@ -52,16 +58,19 @@ export default async function Home(props: {
         )}
 
         {featuredPromise && (
-          <div className="space-y-2">
-            <h2 className="font-semibold text-lg sm:text-xl text-primary">
-              Produk Unggulan
-            </h2>
-            <Suspense fallback={<ProductsSkeleton />}>
-              <Products data={featuredPromise} />
-            </Suspense>
-          </div>
+          <>
+            <div className="space-y-2">
+              <h2 className="font-semibold text-lg sm:text-xl text-primary">
+                Produk Unggulan
+              </h2>
+              <Suspense fallback={<ProductsSkeleton />}>
+                <Products data={featuredPromise} />
+              </Suspense>
+            </div>
+            <Separator />
+          </>
         )}
-        <Separator />
+
         {productsPromise && (
           <div className="space-y-2">
             <h2 className="font-semibold text-lg sm:text-xl text-primary">

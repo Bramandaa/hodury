@@ -3,7 +3,7 @@ import prisma from "../prisma";
 import { unstable_cache } from "next/cache";
 import { Prisma } from "@prisma/client";
 
-export const getActiveProducts = unstable_cache(
+const getCachedActiveProducts = unstable_cache(
   async (): Promise<ProductDTO[]> => {
     const products = await prisma.product.findMany({
       where: { status: "ACTIVE", isFeatured: false },
@@ -15,10 +15,15 @@ export const getActiveProducts = unstable_cache(
   ["active-products"],
   {
     tags: ["product"],
+    revalidate: 60,
   }
 );
 
-export const getFeaturedProducts = unstable_cache(
+export function getActiveProducts() {
+  return getCachedActiveProducts();
+}
+
+const getCachedFeaturedProducts = unstable_cache(
   async (): Promise<ProductDTO[]> => {
     const products = await prisma.product.findMany({
       where: { status: "ACTIVE", isFeatured: true },
@@ -28,14 +33,19 @@ export const getFeaturedProducts = unstable_cache(
     return toProductDTOs(products);
   },
   ["featured-products"],
-  { tags: ["product"] }
+  {
+    tags: ["product"],
+    revalidate: 60,
+  }
 );
 
-export async function getProductsWithCondition(
-  where: Prisma.ProductWhereInput
-) {
+export function getFeaturedProducts() {
+  return getCachedFeaturedProducts();
+}
+
+export function getProductsWithCondition(where: Prisma.ProductWhereInput) {
   return unstable_cache(
-    async (): Promise<ProductDTO[]> => {
+    async (where: Prisma.ProductWhereInput): Promise<ProductDTO[]> => {
       const products = await prisma.product.findMany({
         where,
         include: { category: true },
@@ -43,16 +53,17 @@ export async function getProductsWithCondition(
       });
       return toProductDTOs(products);
     },
+    // Key harus stabil. JSON.stringify(where) tetap oke untuk mapping filtrasi sederhana
     [`products-with-condition-${JSON.stringify(where)}`],
     {
-      revalidate: 60,
       tags: ["product"],
+      revalidate: 60,
     }
-  )();
+  )(where);
 }
 
-export const getProduct = (slugProduct: string) =>
-  unstable_cache(
+export async function getProduct(slugProduct: string) {
+  return unstable_cache(
     async (): Promise<ProductDTO | null> => {
       const product = await prisma.product.findUnique({
         where: { slug: slugProduct },
@@ -64,7 +75,8 @@ export const getProduct = (slugProduct: string) =>
     },
     [`product-${slugProduct}`],
     { tags: ["product"] }
-  );
+  )();
+}
 
 export const getProductsByAdminWithCondition = ({
   skip,

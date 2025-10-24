@@ -10,7 +10,7 @@ export function toCartItemDTO(cartItem: CartItem & { product: Product }) {
 }
 
 export type CartDTO = {
-  cartId: number;
+  cartId: number | undefined;
   userId: number;
   items: ReturnType<typeof toCartItemDTO>[];
 };

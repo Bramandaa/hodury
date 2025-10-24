@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -30,21 +30,32 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "./ui/alert-dialog";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Session } from "@/lib/session";
 import { CartDTO } from "@/lib/dto/cart";
 
 export default function Navigation({
   session,
-  cartData,
+  search,
+  cart,
 }: {
-  session: Session;
-  cartData: CartDTO;
+  session: Session | null;
+  search: string;
+  cart: Promise<CartDTO | null>;
 }) {
+  const cartData = use(cart);
   const router = useRouter();
-  const [keyword, setKeyword] = useState("");
+  const [keyword, setKeyword] = useState(search ?? "");
   const [isOpen, setIsOpen] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
+
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const newKeyword = searchParams.get("search") || "";
+    setKeyword(newKeyword);
+  }, [pathname, searchParams]);
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -76,9 +87,9 @@ export default function Navigation({
           <Link href={"/cart"}>
             <div className="relative">
               <ShoppingCart className="h-6 text-gray-400 hover:text-primary cursor-pointer" />
-              {cartData?.items?.length > 0 && (
-                <div className="absolute -top-2 -right-[10px]">
-                  <div className="flex items-center justify-center bg-primary text-white aspect-square text-[10px] w-5 rounded-full">
+              {cartData && cartData?.items?.length > 0 && (
+                <div className="absolute -top-2 -right-2.5 rounded-full bg-white p-0.5">
+                  <div className="flex items-center justify-center bg-primary text-white font-medium aspect-square text-[10px] w-4 rounded-full">
                     {cartData?.items?.length}
                   </div>
                 </div>
