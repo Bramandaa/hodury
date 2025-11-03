@@ -181,14 +181,32 @@ export default function Navigation({
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+        <div className="space-x-6">
+          <button
+            onClick={() => {
+              router.push("/cart");
+              setIsOpen(false);
+            }}
+            className="relative md:hidden text-gray-600 hover:text-primary"
+          >
+            <ShoppingCart className="h-6 w-6" />
+            {cartData && cartData?.items?.length > 0 && (
+              <div className="absolute -top-2 -right-2.5 rounded-full bg-white p-0.5">
+                <div className="flex items-center justify-center bg-primary text-white font-medium aspect-square text-[10px] w-4 rounded-full">
+                  {cartData?.items?.length}
+                </div>
+              </div>
+            )}
+          </button>
 
-        {/* Mobile Menu Button */}
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden text-gray-600 hover:text-primary"
-        >
-          {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="md:hidden text-gray-600 hover:text-primary"
+          >
+            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}
@@ -210,16 +228,6 @@ export default function Navigation({
 
           {/* Menu list */}
           <div className="flex flex-col bg-white">
-            <button
-              onClick={() => {
-                router.push("/cart");
-                setIsOpen(false);
-              }}
-              className="flex items-center gap-2 px-4 py-3 text-gray-600 hover:text-primary hover:bg-gray-50 active:bg-gray-100 border-b border-gray-200 w-full text-left"
-            >
-              <ShoppingCart className="h-5" /> Keranjang
-            </button>
-
             {session && (
               <>
                 <button
