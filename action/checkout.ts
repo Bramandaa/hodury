@@ -4,11 +4,17 @@ import prisma from "@/lib/prisma";
 import { verifySession } from "@/lib/session";
 import { format } from "date-fns";
 import midtransClient from "midtrans-client";
-import { revalidateTag } from "next/cache";
+import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
-export async function checkoutCart({ userId, cartItemIds }) {
-  const session = await verifySession();
+export async function checkoutCart({
+  userId,
+  cartItemIds,
+}: {
+  userId: number;
+  cartItemIds: number[];
+}) {
+  await verifySession();
 
   if (!cartItemIds || cartItemIds.length === 0) {
     throw new Error("Tidak ada item yang dipilih untuk checkout");
@@ -79,11 +85,11 @@ export async function checkoutCart({ userId, cartItemIds }) {
       where: { id: { in: cartItemIds } },
     }),
   ]);
-  revalidateTag("cart");
+  updateTag("cart");
   return { orderId: order.id, subtotal, invoiceNumber };
 }
 
-export async function payment(orderId) {
+export async function payment(orderId: number) {
   await verifySession();
 
   const order = await prisma.order.findUnique({
@@ -97,6 +103,14 @@ export async function payment(orderId) {
       },
     },
   });
+
+  if (!order) {
+    throw new Error("Order Not Found");
+  }
+
+  if (!process.env.MIDTRANS_SERVER_KEY || !process.env.MIDTRANS_CLIENT_KEY) {
+    throw new Error("Missing Midtrans environment variables");
+  }
 
   const snap = new midtransClient.Snap({
     isProduction: false,
@@ -164,8 +178,8 @@ export async function payment(orderId) {
   };
 }
 
-export async function updateStatusOrder(invoiceNumber) {
-  const session = await verifySession();
+export async function updateStatusOrder(invoiceNumber: string) {
+  await verifySession();
 
   await prisma.order.update({
     where: { invoiceNumber: invoiceNumber },
@@ -173,6 +187,6 @@ export async function updateStatusOrder(invoiceNumber) {
       status: "PAID",
     },
   });
-  revalidateTag("order");
+  updateTag("order");
   redirect("/order/" + invoiceNumber);
 }

@@ -14,7 +14,7 @@ import { CartDTO, toCartItemDTO } from "@/lib/dto/cart";
 import { Session } from "@/lib/session";
 import { CheckedState } from "@radix-ui/react-checkbox";
 import { ShoppingCart } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { use, useMemo, useState } from "react";
 
 export function CartContent({
@@ -92,13 +92,17 @@ export function CartContent({
     setLoadingId(null);
   }
 
-  // Checkout
   async function handleCheckout() {
+    if (!session?.userId) {
+      redirect("/login");
+    }
+
     if (selectedIds.length === 0) return;
+
     try {
       setLoadingCheckout(true);
       const result = await checkoutCart({
-        userId: session?.userId,
+        userId: session.userId,
         cartItemIds: selectedIds,
       });
 
