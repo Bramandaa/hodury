@@ -1,0 +1,134 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  CUSTOMER
+  COURIER
+}
+
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  COMPLETED
+  CANCELLED
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  role      UserRole @default(CUSTOMER)
+  email     String?  @unique
+  phone     String   @unique
+  password  String
+  fullAddress String?
+  provinsi    String?
+  kabupaten   String?
+  kecamatan   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders        Order[]
+  carts         Cart[]
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String
+  slug     String    @unique
+  products Product[]
+}
+
+model Product {
+  id           Int           @id @default(autoincrement())
+  name         String
+  slug         String        @unique
+  description  String?
+  imageUrl     String
+  fileId       String
+  category     Category      @relation(fields: [categoryId], references: [id])
+  categoryId   Int
+  price        Int
+  discountType DiscountType?
+  discount     Int?
+  status       ProductStatus @default(INACTIVE)
+  isFeatured   Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime?
+
+  orderItems OrderItem[]
+  cartItems  CartItem[]
+}
+
+model Cart {
+  id        Int        @id @default(autoincrement())
+  userId    Int        @unique
+  user      User       @relation(fields: [userId], references: [id])
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id        Int     @id @default(autoincrement())
+  cartId    Int
+  cart      Cart    @relation(fields: [cartId], references: [id])
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int     @default(1)
+  createdAt DateTime @default(now())
+
+  @@unique([cartId, productId]) 
+}
+
+model Order {
+  id        Int         @id @default(autoincrement())
+  invoiceNumber  String      @unique
+  user      User      @relation(fields: [userId], references: [id])
+  userId    Int
+  status    OrderStatus @default(PENDING)
+  subtotal      Int
+  shippingFee   Int         @default(20000)
+  serviceFee    Int         @default(1000)
+  handlingFee   Int         @default(1000)
+  total     Int
+  createdAt DateTime    @default(now())
+
+  items OrderItem[]
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId   Int
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+  quantity  Int     @default(1)
+  price     Int
+}
+
+model Banner {
+  id       Int    @id @default(autoincrement())
+  name     String
+  imageUrl String
+  fileId   String
+}
