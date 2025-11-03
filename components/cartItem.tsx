@@ -42,6 +42,12 @@ export default function CartItem({
     setIsEditing(false);
   };
 
+  const handleDelete = async () => {
+    setIsSaving(true);
+    await onRemove(item.cartItemId);
+    setIsSaving(false);
+  };
+
   return (
     <Card
       key={item.cartItemId}
@@ -57,7 +63,6 @@ export default function CartItem({
         </div>
       )}
       <CardContent className="flex items-center gap-3 p-4">
-        {/* Checkbox */}
         <Checkbox
           checked={isSelected}
           onCheckedChange={(checked) => onToggle(item, checked)}
@@ -65,7 +70,6 @@ export default function CartItem({
           disabled={isEditing || isSaving}
         />
 
-        {/* Gambar produk */}
         <div className="relative w-16 h-16 md:w-20 md:h-20 rounded-lg overflow-hidden shrink-0">
           <Image
             src={item.product?.imageUrl ?? "/placeholder.png"}
@@ -77,7 +81,6 @@ export default function CartItem({
           />
         </div>
 
-        {/* Nama dan harga */}
         <div className="flex-1 min-w-0">
           <div className="text-sm font-normal text-primary truncate">
             {item?.product?.name}
@@ -87,17 +90,15 @@ export default function CartItem({
           </div>
         </div>
 
-        {/* Kontrol jumlah & hapus */}
         <div className="flex flex-col items-end space-y-2 shrink-0">
-          {/* Tombol Edit / Selesai */}
           <Button
             variant={isEditing ? "secondary" : "outline"}
             size="icon"
             className={`px-8 ${
               isEditing
-                ? "text-white bg-green-500 hover:text-green-600"
-                : "text-blue-500 hover:text-blue-600"
-            } cursor-pointer`}
+                ? "text-white bg-primary hover:bg-primary"
+                : "text-primary"
+            } cursor-pointer w-16`}
             disabled={isSaving}
             onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
           >
@@ -113,7 +114,11 @@ export default function CartItem({
             >
               <Minus size={18} />
             </Button>
-            <div className="px-2 md:px-3 text-sm md:text-base">
+            <div
+              className={`px-2 md:px-3 text-sm md:text-base ${
+                !isEditing && "text-[#a1a1a1]"
+              }`}
+            >
               {tempQuantity}
             </div>
             <Button
@@ -132,7 +137,7 @@ export default function CartItem({
             size="icon"
             disabled={loading === item.cartItemId || isSaving}
             className="text-red-500 hover:text-red-600 h-6 w-6 md:h-8 md:w-8"
-            onClick={() => onRemove(item.cartItemId)}
+            onClick={() => handleDelete()}
           >
             <Trash2 size={14} />
           </Button>

@@ -133,9 +133,7 @@ export function CartContent({
 
   return (
     <div className="flex flex-col md:flex-row gap-6">
-      {/* Bagian kiri: daftar item */}
       <div className="flex-1 space-y-4">
-        {/* Pilih semua */}
         <Card className="rounded-lg shadow-sm p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -177,7 +175,6 @@ export function CartContent({
           </div>
         </Card>
 
-        {/* Daftar item */}
         {cartData?.items?.map((item, idx, arr) => (
           <CartItem
             key={item.cartItemId}
@@ -193,7 +190,6 @@ export function CartContent({
         ))}
       </div>
 
-      {/* Bagian kanan: ringkasan belanja */}
       <div className="w-full md:w-[35%]">
         <Card className="rounded-lg shadow-sm fixed bottom-0 left-0 right-0 z-20 md:sticky md:top-[72px]">
           <CardHeader>

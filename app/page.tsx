@@ -38,7 +38,7 @@ export default async function Home(props: {
         <Suspense
           fallback={<NavigationSkeletons search={keyword} session={session} />}
         >
-          <Navigation session={session} search={keyword} cart={cartData} />
+          <Navigation session={session} cart={cartData} />
         </Suspense>
         <section className="max-w-5xl mx-auto px-4 sm:px-6 md:px-10 py-6 space-y-12">
           <div className="space-y-2">
@@ -62,7 +62,11 @@ export default async function Home(props: {
         <Suspense
           fallback={<NavigationSkeletons search={keyword} session={session} />}
         >
-          <Navigation session={session} search={keyword} cart={cartData} />
+          <Navigation
+            key={keyword || "home"}
+            session={session}
+            cart={cartData}
+          />
         </Suspense>
         <section className="max-w-5xl mx-auto px-4 sm:px-6 md:px-10 py-6 space-y-12">
           <Suspense fallback={<BannerSkeleton />}>

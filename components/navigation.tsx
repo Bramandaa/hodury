@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { use, useEffect, useState } from "react";
+import { use, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -30,32 +30,23 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "./ui/alert-dialog";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Session } from "@/lib/session";
 import { CartDTO } from "@/lib/dto/cart";
 
 export default function Navigation({
   session,
-  search,
   cart,
 }: {
   session: Session | null;
-  search: string;
   cart: Promise<CartDTO | null>;
 }) {
   const cartData = use(cart);
   const router = useRouter();
-  const [keyword, setKeyword] = useState(search ?? "");
+  const searchParams = useSearchParams();
+  const [keyword, setKeyword] = useState(searchParams.get("search") ?? "");
   const [isOpen, setIsOpen] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
-
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
-    const newKeyword = searchParams.get("search") || "";
-    setKeyword(newKeyword);
-  }, [pathname, searchParams]);
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

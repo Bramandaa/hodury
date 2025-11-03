@@ -14,7 +14,7 @@ export default async function UserLayout({
 
   return (
     <>
-      <Navigation session={session} search="" cart={cartData} />
+      <Navigation session={session} cart={cartData} />
       {children}
     </>
   );
