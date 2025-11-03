@@ -210,28 +210,37 @@ export default function Navigation({
 
           {/* Menu list */}
           <div className="flex flex-col bg-white">
-            <Link
-              href={"/cart"}
-              className="flex items-center gap-2 px-4 py-3 text-gray-600 hover:text-primary hover:bg-gray-50 active:bg-gray-100 border-b border-gray-200"
+            <button
+              onClick={() => {
+                router.push("/cart");
+                setIsOpen(false);
+              }}
+              className="flex items-center gap-2 px-4 py-3 text-gray-600 hover:text-primary hover:bg-gray-50 active:bg-gray-100 border-b border-gray-200 w-full text-left"
             >
               <ShoppingCart className="h-5" /> Keranjang
-            </Link>
+            </button>
 
             {session && (
               <>
-                <Link
-                  href="/profile"
+                <button
+                  onClick={() => {
+                    router.push("/profile");
+                    setIsOpen(false);
+                  }}
                   className="flex items-center gap-2 px-4 py-3 text-gray-600 hover:text-primary hover:bg-gray-50 active:bg-gray-100 border-b border-gray-200"
                 >
                   <User className="h-5" /> Profil
-                </Link>
+                </button>
 
-                <Link
-                  href="/order"
+                <button
+                  onClick={() => {
+                    router.push("/order");
+                    setIsOpen(false);
+                  }}
                   className="flex items-center gap-2 px-4 py-3 text-gray-600 hover:text-primary hover:bg-gray-50 active:bg-gray-100 border-b border-gray-200"
                 >
                   <ReceiptText className="h-5" /> Pesanan
-                </Link>
+                </button>
 
                 <button
                   onClick={() => setOpenDialog(true)}
