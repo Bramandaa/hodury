@@ -19,11 +19,7 @@ export async function getCartByUser(userId: number) {
       }
       return toCartDTO(cart);
     },
-    ["cart"],
-    { tags: ["cart"], revalidate: 1 }
+    [`cart-${userId}`],
+    { tags: ["cart"], revalidate: 60 }
   )();
 }
-
-// export function getCartByUser(userId: number) {
-//   return getCachedCart(userId);
-// }

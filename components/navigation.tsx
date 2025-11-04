@@ -181,7 +181,7 @@ export default function Navigation({
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-        <div className="space-x-6">
+        <div className="space-x-4">
           <button
             onClick={() => {
               router.push("/cart");
