@@ -2,8 +2,8 @@ import { unstable_cache } from "next/cache";
 import { toUserDTO, UserDto } from "../dto/user";
 import prisma from "../prisma";
 
-export const getUserById = (userId: number) =>
-  unstable_cache(
+export async function getUserById(userId: number) {
+  return unstable_cache(
     async (): Promise<UserDto | null> => {
       const user = await prisma.user.findUnique({
         where: { id: userId },
@@ -13,7 +13,8 @@ export const getUserById = (userId: number) =>
     },
     [`profile-${userId}`],
     { tags: ["profile"] }
-  );
+  )();
+}
 
 // export async function getCourier({ skip, where, limit }) {
 //   const users = await prisma.user.findMany({
