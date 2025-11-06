@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { use, useState } from "react";
+import { use, useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -33,6 +33,7 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import { Session } from "@/lib/session";
 import { CartDTO } from "@/lib/dto/cart";
+import Spinner from "./spinner";
 
 export default function Navigation({
   session,
@@ -47,6 +48,8 @@ export default function Navigation({
   const [keyword, setKeyword] = useState(searchParams.get("search") ?? "");
   const [isOpen, setIsOpen] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
+
+  const [, action, isPending] = useActionState(logout, null);
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -169,13 +172,21 @@ export default function Navigation({
               <AlertDialogCancel onClick={() => setOpenDialog(false)}>
                 Batal
               </AlertDialogCancel>
-              <form className="w-full md:w-fit" action={logout}>
+              <form className="w-full md:w-fit" action={action}>
                 <AlertDialogAction
+                  disabled={isPending}
                   className="w-full md:w-fit bg-red-600 hover:bg-red-500"
                   type="submit"
                 >
-                  <LogOut strokeWidth={3} />
-                  Logout
+                  {isPending ? (
+                    <Spinner />
+                  ) : (
+                    <>
+                      {" "}
+                      <LogOut strokeWidth={3} />
+                      Logout
+                    </>
+                  )}
                 </AlertDialogAction>
               </form>
             </AlertDialogFooter>
