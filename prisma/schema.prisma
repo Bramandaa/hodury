@@ -8,9 +8,9 @@ datasource db {
 }
 
 enum UserRole {
-  SUPER_ADMIN
   ADMIN
   CUSTOMER
+  SUPER_ADMIN
   COURIER
 }
 
@@ -33,22 +33,20 @@ enum DiscountType {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  role      UserRole @default(CUSTOMER)
-  email     String?  @unique
-  phone     String   @unique
-  password  String
+  id          Int      @id @default(autoincrement())
+  name        String
+  email       String?  @unique
+  phone       String   @unique
+  password    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  role        UserRole @default(CUSTOMER)
   fullAddress String?
-  provinsi    String?
   kabupaten   String?
   kecamatan   String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  orders        Order[]
-  carts         Cart[]
+  provinsi    String?
+  carts       Cart?
+  orders      Order[]
 }
 
 model Category {
@@ -65,7 +63,6 @@ model Product {
   description  String?
   imageUrl     String
   fileId       String
-  category     Category      @relation(fields: [categoryId], references: [id])
   categoryId   Int
   price        Int
   discountType DiscountType?
@@ -74,56 +71,55 @@ model Product {
   isFeatured   Boolean       @default(false)
   createdAt    DateTime      @default(now())
   updatedAt    DateTime?
-
-  orderItems OrderItem[]
-  cartItems  CartItem[]
+  cartItems    CartItem[]
+  orderItems   OrderItem[]
+  category     Category      @relation(fields: [categoryId], references: [id])
 }
 
 model Cart {
   id        Int        @id @default(autoincrement())
   userId    Int        @unique
-  user      User       @relation(fields: [userId], references: [id])
-  items     CartItem[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+  user      User       @relation(fields: [userId], references: [id])
+  items     CartItem[]
 }
 
 model CartItem {
-  id        Int     @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   cartId    Int
-  cart      Cart    @relation(fields: [cartId], references: [id])
   productId Int
-  product   Product @relation(fields: [productId], references: [id])
-  quantity  Int     @default(1)
+  quantity  Int      @default(1)
   createdAt DateTime @default(now())
+  cart      Cart     @relation(fields: [cartId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
 
-  @@unique([cartId, productId]) 
+  @@unique([cartId, productId])
 }
 
 model Order {
-  id        Int         @id @default(autoincrement())
-  invoiceNumber  String      @unique
-  user      User      @relation(fields: [userId], references: [id])
-  userId    Int
-  status    OrderStatus @default(PENDING)
+  id            Int         @id @default(autoincrement())
+  userId        Int
+  status        OrderStatus @default(PENDING)
+  total         Int
+  createdAt     DateTime    @default(now())
+  invoiceNumber String      @unique
+  handlingFee   Int?        @default(1000)
+  serviceFee    Int?        @default(1000)
+  shippingFee   Int?        @default(20000)
   subtotal      Int
-  shippingFee   Int         @default(20000)
-  serviceFee    Int         @default(1000)
-  handlingFee   Int         @default(1000)
-  total     Int
-  createdAt DateTime    @default(now())
-
-  items OrderItem[]
+  user          User        @relation(fields: [userId], references: [id])
+  items         OrderItem[]
 }
 
 model OrderItem {
   id        Int     @id @default(autoincrement())
-  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId   Int
-  product   Product @relation(fields: [productId], references: [id])
   productId Int
   quantity  Int     @default(1)
   price     Int
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id])
 }
 
 model Banner {
@@ -132,3 +128,5 @@ model Banner {
   imageUrl String
   fileId   String
 }
+
+

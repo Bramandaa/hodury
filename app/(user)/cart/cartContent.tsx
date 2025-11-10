@@ -1,34 +1,28 @@
 "use client";
 
 import { removeCartItem, updateCartQuantity } from "@/action/cart";
-import { checkoutCart } from "@/action/checkout";
 import CartItem from "@/components/cartItem";
 import EmptyItem from "@/components/emptyItem";
 // import EmptyPage from "@/components/EmptyPage";
-import Spinner from "@/components/spinner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { CartDTO, toCartItemDTO } from "@/lib/dto/cart";
-import { Session } from "@/lib/session";
 import { CheckedState } from "@radix-ui/react-checkbox";
 import { ShoppingCart } from "lucide-react";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { use, useMemo, useState } from "react";
 
 export function CartContent({
-  session,
   cartDataPromise,
 }: {
-  session: Session | null;
   cartDataPromise: Promise<CartDTO | null>;
 }) {
   const cartData = use(cartDataPromise);
   const router = useRouter();
   const [loadingId, setLoadingId] = useState<number | null>(null);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  const [loadingCheckout, setLoadingCheckout] = useState(false);
 
   const total = useMemo(() => {
     return (
@@ -92,29 +86,12 @@ export function CartContent({
     setLoadingId(null);
   }
 
-  async function handleCheckout() {
-    if (!session?.userId) {
-      redirect("/login");
-    }
-
-    if (selectedIds.length === 0) return;
-
-    try {
-      setLoadingCheckout(true);
-      const result = await checkoutCart({
-        userId: session.userId,
-        cartItemIds: selectedIds,
-      });
-
-      setSelectedIds([]);
-      router.replace(`/checkout/${result.invoiceNumber}`);
-    } catch (err) {
-      console.error(err);
-      alert("Terjadi kesalahan saat checkout");
-    } finally {
-      setLoadingCheckout(false);
-    }
-  }
+  const handleCheckout = () => {
+    const query = new URLSearchParams({
+      items: selectedIds.join(","),
+    });
+    router.push(`/checkout?${query.toString()}`);
+  };
 
   if (!cartData?.items || cartData?.items.length === 0) {
     return (
@@ -210,9 +187,9 @@ export function CartContent({
             <Button
               className="w-full bg-primary text-white rounded-lg cursor-pointer"
               onClick={handleCheckout}
-              disabled={selectedIds?.length === 0 || loadingCheckout}
+              disabled={selectedIds?.length === 0}
             >
-              {loadingCheckout ? <Spinner /> : "Beli"}
+              Beli
             </Button>
           </CardContent>
         </Card>

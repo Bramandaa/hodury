@@ -141,7 +141,7 @@ export async function editUserAdress(
 export async function editAdressCheckout(
   prevState: UseActionState | null,
   formData: FormData
-) {
+): Promise<UseActionState> {
   const session = await verifySession();
   if (!session) {
     throw new Error("Harus Login");
@@ -157,10 +157,10 @@ export async function editAdressCheckout(
     }
 
     const rawData = {
-      fullAddress: formData.get("fullAddress"),
-      provinsi: formData.get("provinsi"),
-      kabupaten: formData.get("kabupaten"),
-      kecamatan: formData.get("kecamatan"),
+      fullAddress: formData.get("fullAddress") as string,
+      provinsi: formData.get("provinsi") as string,
+      kabupaten: formData.get("kabupaten") as string,
+      kecamatan: formData.get("kecamatan") as string,
     };
 
     const validated = editUserAddressSchema.safeParse(rawData);

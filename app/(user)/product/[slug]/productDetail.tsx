@@ -99,8 +99,8 @@ export default function ProductDetail({
         <div className="md:col-span-3 flex justify-center md:justify-start">
           <div className="relative w-full max-w-60 aspect-square rounded-lg overflow-hidden md:shadow-md">
             <Image
-              src={productData?.imageUrl}
-              alt={productData?.name}
+              src={productData?.imageUrl || "/placeholder.png"}
+              alt={productData?.name || "Product image"}
               sizes="100vh"
               fill
               priority

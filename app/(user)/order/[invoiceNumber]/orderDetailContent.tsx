@@ -79,16 +79,16 @@ export default function OrderDetailContent({
             ))}
             <div className="flex justify-between text-sm">
               <span>Ongkos Kirim</span>
-              <span>Rp {order.shippingFee.toLocaleString("id-ID")}</span>
+              <span>Rp {order?.shippingFee?.toLocaleString("id-ID")}</span>
             </div>
 
             <div className="flex justify-between text-sm">
               <span>Biaya Jasa</span>
-              <span>Rp {order.serviceFee.toLocaleString("id-ID")}</span>
+              <span>Rp {order?.serviceFee?.toLocaleString("id-ID")}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span>Biaya Layanan</span>
-              <span>Rp {order.handlingFee.toLocaleString("id-ID")}</span>
+              <span>Rp {order?.handlingFee?.toLocaleString("id-ID")}</span>
             </div>
           </div>
           <Separator />

@@ -4,44 +4,61 @@ import prisma from "@/lib/prisma";
 import { verifySession } from "@/lib/session";
 import { format } from "date-fns";
 import midtransClient from "midtrans-client";
-import { updateTag } from "next/cache";
-import { redirect } from "next/navigation";
 
-export async function checkoutCart({
-  userId,
-  cartItemIds,
+export async function payment({
+  itemIds,
+  total,
 }: {
-  userId: number;
-  cartItemIds: number[];
+  itemIds: number[];
+  total: number;
 }) {
-  await verifySession();
+  const session = await verifySession();
 
-  if (!cartItemIds || cartItemIds.length === 0) {
-    throw new Error("Tidak ada item yang dipilih untuk checkout");
-  }
+  const user = await prisma.user.findUnique({ where: { id: session.userId } });
 
-  const cart = await prisma.cart.findUnique({
-    where: { userId },
-    select: { id: true },
-  });
-
-  if (!cart) throw new Error("Cart user tidak ditemukan");
-
-  const selectedItems = await prisma.cartItem.findMany({
+  const items = await prisma.cartItem.findMany({
     where: {
-      id: { in: cartItemIds },
-      cartId: cart.id,
+      id: { in: itemIds },
     },
     include: { product: true },
   });
 
-  if (selectedItems.length === 0) {
-    throw new Error("Item tidak ditemukan");
+  if (!process.env.MIDTRANS_SERVER_KEY || !process.env.MIDTRANS_CLIENT_KEY) {
+    throw new Error("Missing Midtrans environment variables");
   }
 
-  const subtotal = selectedItems.reduce((acc, item) => {
-    return acc + item.quantity * item.product.price;
-  }, 0);
+  const snap = new midtransClient.Snap({
+    isProduction: false,
+    serverKey: process.env.MIDTRANS_SERVER_KEY,
+    clientKey: process.env.MIDTRANS_CLIENT_KEY,
+  });
+
+  const itemDetails = [
+    ...items.map((item) => ({
+      id: `${item.id}-${item.product?.id}`,
+      price: item.product?.price,
+      quantity: item.quantity,
+      name: item.product?.name,
+    })),
+    {
+      id: "shipping-fee",
+      price: 20000,
+      quantity: 1,
+      name: "Shipping Fee",
+    },
+    {
+      id: "service-fee",
+      price: 1000,
+      quantity: 1,
+      name: "Service Fee",
+    },
+    {
+      id: "handling-fee",
+      price: 1000,
+      quantity: 1,
+      name: "Handling Fee",
+    },
+  ];
 
   const today = format(new Date(), "yyyyMMdd"); // 20251002 misalnya
 
@@ -60,112 +77,18 @@ export async function checkoutCart({
       .padStart(3, "0")}`;
 
     const exists = await prisma.order.findUnique({ where: { invoiceNumber } });
-    if (!exists) break; // unik, keluar loop
+    if (!exists) break;
   }
-
-  // Jalankan transaksi atomik
-  const [order] = await prisma.$transaction([
-    prisma.order.create({
-      data: {
-        user: { connect: { id: userId } },
-        invoiceNumber,
-        subtotal: subtotal,
-        total: subtotal + 22000,
-        items: {
-          create: selectedItems.map((item) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            price: item.product.price,
-          })),
-        },
-      },
-      include: { items: true },
-    }),
-    prisma.cartItem.deleteMany({
-      where: { id: { in: cartItemIds } },
-    }),
-  ]);
-  updateTag("cart");
-  return { orderId: order.id, subtotal, invoiceNumber };
-}
-
-export async function payment(orderId: number) {
-  await verifySession();
-
-  const order = await prisma.order.findUnique({
-    where: { id: Number(orderId) },
-    include: {
-      user: true,
-      items: {
-        include: {
-          product: true,
-        },
-      },
-    },
-  });
-
-  if (!order) {
-    throw new Error("Order Not Found");
-  }
-
-  if (!process.env.MIDTRANS_SERVER_KEY || !process.env.MIDTRANS_CLIENT_KEY) {
-    throw new Error("Missing Midtrans environment variables");
-  }
-
-  const snap = new midtransClient.Snap({
-    isProduction: false,
-    serverKey: process.env.MIDTRANS_SERVER_KEY,
-    clientKey: process.env.MIDTRANS_CLIENT_KEY,
-  });
-
-  const itemDetails = [
-    ...order.items.map((item) => ({
-      id: `${order.id}-${item.productId}`,
-      price: item.price,
-      quantity: item.quantity,
-      name: item.product.name,
-    })),
-    ...(order.shippingFee
-      ? [
-          {
-            id: `${order.id}-SHIPPING`,
-            price: order.shippingFee,
-            quantity: 1,
-            name: "Ongkos Kirim",
-          },
-        ]
-      : []),
-    ...(order.serviceFee
-      ? [
-          {
-            id: `${order.id}-SERVICE`,
-            price: order.serviceFee,
-            quantity: 1,
-            name: "Biaya Layanan",
-          },
-        ]
-      : []),
-    ...(order.handlingFee
-      ? [
-          {
-            id: `${order.id}-HANDLING`,
-            price: order.handlingFee,
-            quantity: 1,
-            name: "Biaya Jasa",
-          },
-        ]
-      : []),
-  ];
 
   const parameter = {
     transaction_details: {
-      order_id: order.invoiceNumber,
-      gross_amount: order.total,
+      order_id: invoiceNumber,
+      gross_amount: total,
     },
     customer_details: {
-      first_name: order.user.name,
-      phone: order.user.phone,
-      email: order.user.email || undefined,
+      first_name: user?.name,
+      phone: user?.phone,
+      email: user?.email || undefined,
     },
     item_details: itemDetails,
   };
@@ -174,19 +97,6 @@ export async function payment(orderId: number) {
 
   return {
     token: transaction.token,
-    redirect_url: transaction.redirect_url,
+    invoiceNumber,
   };
-}
-
-export async function updateStatusOrder(invoiceNumber: string) {
-  await verifySession();
-
-  await prisma.order.update({
-    where: { invoiceNumber: invoiceNumber },
-    data: {
-      status: "PAID",
-    },
-  });
-  updateTag("order");
-  redirect("/order/" + invoiceNumber);
 }

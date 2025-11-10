@@ -1,6 +1,12 @@
 import { Cart, CartItem, Product } from "@prisma/client";
 import { toProductDTO } from "./product";
 
+export type CartItemDTO = {
+  cartItemId: number;
+  quantity: number;
+  product: ReturnType<typeof toProductDTO> | null;
+};
+
 export function toCartItemDTO(
   cartItem: CartItem & { product: Product | null }
 ) {

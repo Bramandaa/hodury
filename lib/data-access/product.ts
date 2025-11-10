@@ -72,7 +72,7 @@ export async function getProductsByAdminWithCondition({
   limit: number;
   where: Prisma.ProductWhereInput;
 }) {
-  unstable_cache(
+  return unstable_cache(
     async (): Promise<ProductDTO[] | null> => {
       const products = await prisma.product.findMany({
         skip,
@@ -80,9 +80,7 @@ export async function getProductsByAdminWithCondition({
         orderBy: { id: "asc" },
         where,
         include: {
-          category: {
-            select: { id: true, name: true, slug: true },
-          },
+          category: true,
         },
       });
       if (!products) return null;

@@ -1,7 +1,27 @@
 import { Product, Category } from "@prisma/client";
-import { toCategoryDTO } from "./category";
 
-export function toProductDTO(product: Product & { category?: Category }) {
+export interface ProductDTO {
+  id: number;
+  name: string;
+  slug: string;
+  description: string | null;
+  imageUrl: string | null;
+  price: number;
+  discountType: string | null;
+  discount: number | null;
+  status: string;
+  isFeatured: boolean;
+  createdAt: Date;
+  category?: {
+    id: number;
+    name: string;
+    slug: string;
+  };
+}
+
+export function toProductDTO(
+  product: Product & { category?: Category }
+): ProductDTO {
   return {
     id: product.id,
     name: product.name,
@@ -14,12 +34,16 @@ export function toProductDTO(product: Product & { category?: Category }) {
     status: product.status,
     isFeatured: product.isFeatured,
     createdAt: product.createdAt,
-    category: product.category ? toCategoryDTO(product.category) : undefined,
+    category: product.category
+      ? {
+          id: product.category.id,
+          name: product.category.name,
+          slug: product.category.slug,
+        }
+      : undefined,
   };
 }
 
-export type ProductDTO = ReturnType<typeof toProductDTO>;
-
-export function toProductDTOs(products: (Product & { category: Category })[]) {
+export function toProductDTOs(products: (Product & { category?: Category })[]) {
   return products.map(toProductDTO);
 }

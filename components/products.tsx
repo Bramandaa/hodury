@@ -32,8 +32,8 @@ export default function Products({ data }: { data: Promise<ProductDTO[]> }) {
             <CardContent className="p-2 flex flex-col h-full">
               <div className="relative w-full aspect-square flex items-center justify-center">
                 <Image
-                  src={item.imageUrl}
-                  alt={item.name}
+                  src={item.imageUrl || "/placeholder.png"}
+                  alt={item.name || "Product image"}
                   fill
                   sizes="100vh"
                   className="object-contain"

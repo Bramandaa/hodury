@@ -14,7 +14,7 @@ export type Session = {
   role: "ADMIN" | "USER" | "SUPER_ADMIN" | string;
 };
 
-type SessionPayload = JWTPayload & {
+export type SessionPayload = JWTPayload & {
   userId: number;
   role: string;
   expiresAt: string;

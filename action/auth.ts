@@ -136,7 +136,7 @@ export async function auth(
   );
 }
 
-export async function logout(): Promise<UseActionState> {
+export async function logout() {
   await deleteSession();
   redirect("/login");
 }

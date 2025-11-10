@@ -20,6 +20,8 @@ export function toUsersDTOs(user: User[]) {
   return user.map(toUserDTO);
 }
 
+export type UserAddressDTO = ReturnType<typeof toUserAddressDTO>;
+
 export function toUserAddressDTO(user: User) {
   return {
     name: user.name,
