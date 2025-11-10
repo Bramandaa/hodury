@@ -110,28 +110,35 @@ export default function DetailOrderDashboard({
           <CardTitle>Produk Dipesan</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Produk</TableHead>
-                <TableHead>Qty</TableHead>
-                <TableHead>Harga</TableHead>
-                <TableHead>Subtotal</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {orderData?.items.map((item, i) => (
-                <TableRow key={i}>
-                  <TableCell>{item.product.name}</TableCell>
-                  <TableCell>{item.quantity}</TableCell>
-                  <TableCell>{formatRupiah(item.price)}</TableCell>
-                  <TableCell>
-                    {formatRupiah(item.price * item.quantity)}
-                  </TableCell>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Produk</TableHead>
+                  <TableHead>Qty</TableHead>
+                  <TableHead>Harga</TableHead>
+                  <TableHead>Subtotal</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {orderData?.items.map((item, i) => (
+                  <TableRow key={i}>
+                    <TableCell
+                      className="whitespace-normal wrap-break-word max-w-[200px]"
+                      title={item.product.name}
+                    >
+                      {item.product.name}
+                    </TableCell>
+                    <TableCell>{item.quantity}</TableCell>
+                    <TableCell>{formatRupiah(item.price)}</TableCell>
+                    <TableCell>
+                      {formatRupiah(item.price * item.quantity)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
