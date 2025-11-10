@@ -64,11 +64,7 @@ export default async function SalesReportPage({
         </div>
       </div>
 
-      <SearchSalesReportForm
-        ordersPromise={ordersPromise}
-        startDate={startDate}
-        endDate={endDate}
-      />
+      <SearchSalesReportForm ordersPromise={ordersPromise} params={params} />
 
       <SalesReportTable
         ordersPromise={ordersPromise}

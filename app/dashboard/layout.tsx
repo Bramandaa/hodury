@@ -9,6 +9,8 @@ import { LogOut, User } from "lucide-react";
 import { verifySession } from "@/lib/session";
 import { logout } from "@/action/auth";
 import SidebarDashboard from "@/components/sidebarDashboard";
+import { UserRole } from "@prisma/client";
+import { redirect } from "next/navigation";
 
 export default async function DashboardLayout({
   children,
@@ -16,6 +18,14 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const session = await verifySession();
+
+  if (
+    session.role !== UserRole.ADMIN &&
+    session.role !== UserRole.SUPER_ADMIN &&
+    session.role !== UserRole.COURIER
+  ) {
+    redirect("/");
+  }
 
   return (
     <div className="flex w-full h-screen bg-gray-100">

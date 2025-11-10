@@ -31,27 +31,19 @@ import Link from "next/link";
 import { Eye } from "lucide-react";
 import { OrderStatus } from "@prisma/client";
 import { updateStatusOrderDashboard } from "@/action/order";
+import { SearchParamsDashboard } from "@/types";
 
-export function SearchOrderForm({
-  params,
-}: {
-  params: {
-    success: string;
-    page: string;
-    limit: string;
-    keyword: string;
-    status: string;
-    startDate: string;
-    endDate: string;
-  };
-}) {
+export function SearchOrderForm({ params }: { params: SearchParamsDashboard }) {
   const router = useRouter();
   const [keyword, setKeyword] = useState(params?.keyword || "");
   const [status, setStatus] = useState(params?.status || "all");
-  const range = {
-    from: new Date(params?.startDate) || undefined,
-    to: new Date(params?.endDate) || undefined,
-  };
+  const range =
+    params?.startDate && params?.endDate
+      ? {
+          from: new Date(params.startDate),
+          to: new Date(params.endDate),
+        }
+      : undefined;
   const [dateRange, setDateRange] = useState<DateRange | undefined>(range);
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {

@@ -24,26 +24,32 @@ import { Eye, FileDown } from "lucide-react";
 import { OrderDTO } from "@/lib/dto/order";
 import Link from "next/link";
 import { DateRange } from "react-day-picker";
+import { SearchParamsDashboard } from "@/types";
 
 export function SearchSalesReportForm({
   ordersPromise,
-  startDate,
-  endDate,
+  params,
 }: {
   ordersPromise: Promise<OrderDTO[]>;
-  startDate: Date | undefined;
-  endDate: Date | undefined;
+  params: SearchParamsDashboard;
 }) {
   const orders = use(ordersPromise);
   const router = useRouter();
   const [keyword, setKeyword] = useState("");
   const [status, setStatus] = useState("all");
-  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const range =
+    params?.startDate && params?.endDate
+      ? {
+          from: new Date(params.startDate),
+          to: new Date(params.endDate),
+        }
+      : undefined;
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(range);
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    let query = `?search=${keyword}&status=${status}&page=1`;
+    let query = `?keyword=${keyword}&status=${status}&page=1`;
 
     if (
       dateRange?.from instanceof Date &&
@@ -103,37 +109,43 @@ export function SearchSalesReportForm({
       body: orders.map((item) => [
         item.invoiceNumber,
         new Date(item.createdAt).toLocaleDateString("id-ID"),
-        item.user.name,
-        item.user.phone,
-        item.subtotal.toLocaleString("id-ID"),
-        item?.shippingFee?.toLocaleString("id-ID") || 20000,
-        item?.serviceFee?.toLocaleString("id-ID") || 1000,
-        item?.handlingFee?.toLocaleString("id-ID") || 1000,
-        item.total.toLocaleString("id-ID"),
+        item.user?.name || "-",
+        item.user?.phone || "-",
+        item.subtotal?.toLocaleString("id-ID") || "0",
+        (item.shippingFee ?? 20000).toLocaleString("id-ID"),
+        (item.serviceFee ?? 1000).toLocaleString("id-ID"),
+        (item.handlingFee ?? 1000).toLocaleString("id-ID"),
+        item.total?.toLocaleString("id-ID") || "0",
         item.status,
       ]),
       styles: { fontSize: 9 },
       headStyles: { fillColor: [52, 152, 219] },
     });
 
-    const formatDate = (date: Date) => {
+    // ✅ Fix: terima Date atau string, dan aman dari Invalid Date
+    const formatDate = (date: string | Date) => {
       const d = new Date(date);
+      if (isNaN(d.getTime())) return "invalid-date";
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
         2,
         "0"
       )}-${String(d.getDate()).padStart(2, "0")}`;
     };
 
-    let fileName = "";
+    // ✅ Ambil dari params dengan fallback aman
+    const start = params?.startDate ? new Date(params.startDate) : undefined;
+    const end = params?.endDate ? new Date(params.endDate) : undefined;
 
-    if (startDate && endDate) {
-      fileName = `laporan_order_${formatDate(startDate)}_sampai_${formatDate(
-        endDate
+    let fileName = "laporan_order.pdf";
+
+    if (start && end && !isNaN(start.getTime()) && !isNaN(end.getTime())) {
+      fileName = `laporan_order_${formatDate(start)}_sampai_${formatDate(
+        end
       )}.pdf`;
-    } else if (startDate) {
-      fileName = `laporan_order_${formatDate(startDate)}_sampai_all.pdf`;
-    } else if (endDate) {
-      fileName = `laporan_order_all_sampai_${formatDate(endDate)}.pdf`;
+    } else if (start && !isNaN(start.getTime())) {
+      fileName = `laporan_order_${formatDate(start)}_sampai_all.pdf`;
+    } else if (end && !isNaN(end.getTime())) {
+      fileName = `laporan_order_all_sampai_${formatDate(end)}.pdf`;
     } else {
       const today = formatDate(new Date());
       fileName = `laporan_order_${today}.pdf`;
